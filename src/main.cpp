@@ -4,6 +4,8 @@
 #include <sstream>
 #include <vector>
 
+#include "profiler.h"
+
 using namespace std;
 
 // Split strings by a specified delimiter (i.e. ",")
@@ -27,6 +29,7 @@ vector<string> split(const string& str, char delimiter) {
 int main(int argc, char** argv) {
     // Read args
     // In format [program] [filename.csv] [column name] [operation]
+    Timer timer;
     if (argc != 4) {
         cerr << "Incorrect number of arguments passed. Please try again.";
         return 1;
