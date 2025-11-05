@@ -7,4 +7,5 @@ add_executable(blaze-csv)
 target_sources(blaze-csv
     PRIVATE
         src/main.cpp
+        src/test.csv
 )
