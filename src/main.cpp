@@ -6,6 +6,7 @@
 
 using namespace std;
 
+// Split strings by a specified delimiter (i.e. ",")
 vector<string> split(const string& str, char delimiter) {
     vector<string> tokens;
     size_t start = 0;
@@ -26,21 +27,24 @@ vector<string> split(const string& str, char delimiter) {
 int main(int argc, char** argv) {
     // Read args
     // In format [program] [filename.csv] [column name] [operation]
+    if (argc != 4) {
+        cerr << "Incorrect number of arguments passed. Please try again.";
+        return 1;
+    }
+
+    // Set arguments
     string filename = argv[1];
     string columnName = argv[2];
     int columnIndex = -1;
-    // string operation = argv[3];
+    string operation = argv[3];
 
-    string tempText;
+    // Opening file
     ifstream file(filename);
 
+    // Find index of chosen column header
     string columnHeaders;
-
-    // Matching column headers to arguments passed in
     getline(file, columnHeaders);
-
     auto headers = split(columnHeaders, ',');
-
     for (int i = 0; i < headers.size(); i++) {
         if (headers[i] == columnName) {
             columnIndex = i;
@@ -48,15 +52,17 @@ int main(int argc, char** argv) {
         };
     }
 
-    cout << "Index:" << columnIndex << endl;
+    if (columnIndex == -1) {
+        cerr << "Column '" << columnName << "' not found.";
+        return 1;
+    }
 
-    // cout << columnHeaders << endl;
-
+    // Print rest of file
+    string tempText;
     while (getline (file, tempText)) {
         cout << tempText;
     }
 
     file.close();
-
     return 0;
 }
