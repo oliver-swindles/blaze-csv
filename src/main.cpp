@@ -62,10 +62,12 @@ int main(int argc, char** argv) {
 
     // Print rest of file
     string tempText;
+    int count = 0;
     while (getline (file, tempText)) {
-        cout << tempText;
+        count++;
     }
 
+    cout << "Count: " << count << endl;
     file.close();
     return 0;
 }
