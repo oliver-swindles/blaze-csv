@@ -61,13 +61,39 @@ int main(int argc, char** argv) {
     }
 
     // Print rest of file
-    string tempText;
-    int count = 0;
-    while (getline (file, tempText)) {
-        count++;
+    string fileDataLine;
+    double totalSum = 0;
+    long validDataCount = 0;
+    long totalCount = 0;
+    while (getline (file, fileDataLine)) {
+        stringstream lineStream(fileDataLine);
+        string dataChunk;
+        int currentColumn = 0;
+
+        while (getline(lineStream, dataChunk, ',')) {
+            totalCount++;
+            if (currentColumn == columnIndex) {
+                try {
+                    totalSum += stod(dataChunk);
+                    validDataCount++;
+                }
+                catch (const invalid_argument& e) {
+                    continue;
+                }
+                catch (out_of_range& e) {
+                    continue;
+                }
+
+                break;
+            }
+            currentColumn++;
+        }
     }
 
-    cout << "Count: " << count << endl;
+    cout << "Total Count: " << totalCount << endl;
+    cout << "Valid Count: " << validDataCount << endl;
+    cout << "Sum: " << totalSum << endl;
+    cout << "Average: " << (totalSum / validDataCount) << endl;
     file.close();
     return 0;
 }
