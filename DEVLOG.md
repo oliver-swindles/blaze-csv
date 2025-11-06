@@ -12,3 +12,27 @@ Added a simple count and sum for the column specified by the user.
 When used on the ukraineflights data, longitude avg took 27074.1ms to run, and calculate the average to be 28.4838; Latitude took 39634.8ms to run, calculated average of 47.9795. The total amount of data for each was relatively similar, there were 22517263 rows of long, and 22517263 of lat.
 
 Removed continue statements, lat now takes 30165.3ms, long now takes 27265.2ms.
+
+Beginning optimisations to how files are read.
+
+Written a rather unfair Python version without any of the comparisons to find columns etc, just hard coded the longitude column. Both the C++ and Python finish in roughly the same time, except the C++ one also creates and deletes ~22 million stringstream objects along the way, and parses all columns looking for the correct column index...
+
+C++:
+blaze-csv ukraineflights.csv 27.1995 average
+Total Count: 22517263
+Valid Count: 22517263
+Sum: 6.41377e+08
+Average: 28.4838
+
+
+--- Profiling Report ---
+Program took: 29856.6ms to run.
+
+Python: 
+python py-benchmark.py
+Start: 1762434265.9437895
+End: 1762434296.0578191
+Total: 641377135.594248
+Count: 22517264
+
+End - Start = 30.1140296 seconds
