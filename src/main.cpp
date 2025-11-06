@@ -66,24 +66,21 @@ int main(int argc, char** argv) {
     long validDataCount = 0;
     long totalCount = 0;
     while (getline (file, fileDataLine)) {
+        totalCount++;
         stringstream lineStream(fileDataLine);
         string dataChunk;
         int currentColumn = 0;
 
         while (getline(lineStream, dataChunk, ',')) {
-            totalCount++;
             if (currentColumn == columnIndex) {
                 try {
                     totalSum += stod(dataChunk);
                     validDataCount++;
                 }
                 catch (const invalid_argument& e) {
-                    continue;
                 }
                 catch (out_of_range& e) {
-                    continue;
                 }
-
                 break;
             }
             currentColumn++;
