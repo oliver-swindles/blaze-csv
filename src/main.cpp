@@ -29,7 +29,7 @@ vector<string> split(const string& str, char delimiter) {
 int main(int argc, char** argv) {
     // Read args
     // In format [program] [filename.csv] [column name] [operation]
-    Timer timer;
+    Timer timer("Entire Program"); // Start profiling Timer
     if (argc != 4) {
         cerr << "Incorrect number of arguments passed. Please try again.";
         return 1;

@@ -1,7 +1,6 @@
 import sys
 import time
 
-
 start = time.time()
 
 # Read args
@@ -49,13 +48,6 @@ for line in file:
             except:
                   print("Error")
         currentColumn += 1
-
-
-# for line in file:
-#     line = line.split(",")
-#     count += 1
-#     # print(line[5] + "\n")
-#     total += float(line[5])
 
 file.close()
 end = time.time()
