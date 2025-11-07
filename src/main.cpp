@@ -33,11 +33,45 @@ struct Results {
     double totalSum = 0;
 };
 
-Results processFile(ifstream& file, int columnIndex, const string& operation) {
+void parseChunk(string_view chunk, Results& results, int columnIndex, bool needsParsing) {
+    int currentColumn = 0;
+    string currentField;
+
+    for (char c : chunk) {
+        if (c == ',') {
+            if (needsParsing && currentColumn == columnIndex) {
+                try {
+                    results.totalSum += stod(currentField);
+                    results.validDataCount++;
+                } catch (...) {
+
+                }
+            }
+            currentColumn++;
+            currentField.clear();
+        } else if (c == '\n') {
+            if (needsParsing && currentColumn == columnIndex) {
+                try {
+                    results.totalSum += stod(currentField);
+                    results.validDataCount++;
+                } catch (...) {
+
+                }
+            }
+            results.totalCount++;
+            currentField.clear();
+            currentColumn = 0;
+        } else {
+            if (needsParsing && currentColumn == columnIndex) {
+                currentField += c;
+            }
+        }
+    }
+}
+
+Results processFile(ifstream& file, int columnIndex, string operation) {
     Results results;
     bool needsParsing = (operation == "sum" || operation == "average");
-
-    string fileDataLine;
 
     const size_t CHUNK_SIZE = 8 * 1024 * 1024; // 8mb
     vector<char> buffer(CHUNK_SIZE);
@@ -48,15 +82,7 @@ Results processFile(ifstream& file, int columnIndex, const string& operation) {
 
         string_view dataView(buffer.data(), bytesRead);
 
-        for (char c : dataView) {
-            if (c == '\n') {
-                results.totalCount++;
-            } else if (c == ',') {
-
-            }
-        }
-
-        cout << "A: " << bytesRead << endl;
+        parseChunk(dataView, results, columnIndex, needsParsing);
     };
 
     cout << buffer.data();
@@ -167,7 +193,6 @@ int main(int argc, char** argv) {
     Results fileResults = processFile(file, columnIndex, operation);
 
     // Print rest of file
-    string fileDataLine;
     double totalSum = 0;
     long validDataCount = 0;
     long totalCount = 0;
