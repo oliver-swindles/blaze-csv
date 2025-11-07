@@ -36,3 +36,12 @@ Total: 641377135.594248
 Count: 22517264
 
 End - Start = 30.1140296 seconds
+
+# 07.11.2025
+Updated the python version to behave a lot closer to how the C++ one does to better gage performance differences, results below:
+
+- Both got the same results
+- C++ took: 18.3233 s
+- Python took: 48.6279435 s
+
+I think the largest reason between the big difference between the C++ result today (~18s) and yesterdays (~30s) is because I had more programs running etc yesterday, although on both days when I ran the Python and C++ programs they were both under the same test conditions on each day.
