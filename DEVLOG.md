@@ -38,10 +38,34 @@ Count: 22517264
 End - Start = 30.1140296 seconds
 
 # 07.11.2025
-Updated the python version to behave a lot closer to how the C++ one does to better gage performance differences, results below:
+Updated the python version to behave a lot closer to how the C++ one does to better gage performance differences, results below for finding column average:
 
 - Both got the same results
 - C++ took: 18.3233 s
 - Python took: 48.6279435 s
 
 I think the largest reason between the big difference between the C++ result today (~18s) and yesterdays (~30s) is because I had more programs running etc yesterday, although on both days when I ran the Python and C++ programs they were both under the same test conditions on each day.
+
+blaze-csv ukraineflights.csv 27.1995 count
+Total Count: 22517263
+Valid Count: 0
+Sum: 0
+Average: nan
+
+Entire Program took 5181.35ms to run.
+
+blaze-csv ukraineflights.csv 27.1995 sum
+Total Count: 22517263
+Valid Count: 22517263
+Sum: 6.41377e+08
+Average: 28.4838
+
+Entire Program took 27063.3ms to run.
+
+blaze-csv ukraineflights.csv 27.1995 average
+Total Count: 22517263
+Valid Count: 22517263
+Sum: 6.41377e+08
+Average: 28.4838
+
+Entire Program took 28154.9ms to run.
