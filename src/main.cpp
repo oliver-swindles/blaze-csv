@@ -80,10 +80,31 @@ Results processFile(ifstream& file, int columnIndex, string operation) {
     while (file.read(buffer.data(), CHUNK_SIZE) || file.gcount() > 0) {
         size_t bytesRead = file.gcount();
 
+        if (bytesRead == 0) {
+            continue;
+        }
+
         string_view dataView(buffer.data(), bytesRead);
 
-        parseChunk(dataView, results, columnIndex, needsParsing);
+        string chunkToProcess = remnant + string(dataView);
+        size_t lastNewLinePosition = chunkToProcess.find_last_of('\n');
+
+        if (lastNewLinePosition != string::npos) {
+            // Newline, save partial line AFTER for next loop
+            remnant = chunkToProcess.substr(lastNewLinePosition + 1);
+            chunkToProcess.resize(lastNewLinePosition);
+        } else {
+            remnant = chunkToProcess;
+            continue;
+        }
+        
+        parseChunk(chunkToProcess, results, columnIndex, needsParsing);
     };
+
+    if (!remnant.empty()) {
+        remnant += '\n';
+        parseChunk(remnant, results, columnIndex, needsParsing);
+    }
 
     cout << buffer.data();
 
