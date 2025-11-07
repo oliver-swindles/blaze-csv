@@ -69,3 +69,17 @@ Sum: 6.41377e+08
 Average: 28.4838
 
 Entire Program took 28154.9ms to run.
+
+After adding chunked parsing execution time still appears to be roughly the same as when using getline(). Likely due to the way I'm handling remnants; Currently copying the entire 8mb chunk every loop and prefixing the remnant.
+
+
+Current solution, with copying chunk and remnant:
+blaze-csv ukraineflights.csv 27.1995 sum
+
+Processing File took 33356.2ms to run.
+Total Count: 22516901
+Valid Count: 22517263
+Sum: 6.41377e+08
+Average: 28.4838
+
+Entire Program took 33357.1ms to run.

@@ -70,73 +70,40 @@ void parseChunk(string_view chunk, Results& results, int columnIndex, bool needs
 }
 
 Results processFile(ifstream& file, int columnIndex, string operation) {
+    Timer processFileTimer("Processing File");
     Results results;
     bool needsParsing = (operation == "sum" || operation == "average");
 
-    const size_t CHUNK_SIZE = 8 * 1024 * 1024; // 8mb
+    // Create 8mb buffer
+    const size_t CHUNK_SIZE = 8 * 1024 * 1024;
     vector<char> buffer(CHUNK_SIZE);
-    string remnant = "";
+    string remnant;
 
     while (file.read(buffer.data(), CHUNK_SIZE) || file.gcount() > 0) {
         size_t bytesRead = file.gcount();
 
-        if (bytesRead == 0) {
+        if (bytesRead == 0) continue;
+
+        remnant.append(buffer.data(), bytesRead);
+        size_t lastNewLinePosition = remnant.find_last_of('\n');
+
+        if (lastNewLinePosition == string::npos) {
             continue;
         }
 
-        string_view dataView(buffer.data(), bytesRead);
+        string_view chunkToParse(remnant.data(), lastNewLinePosition);
 
-        string chunkToProcess = remnant + string(dataView);
-        size_t lastNewLinePosition = chunkToProcess.find_last_of('\n');
+        parseChunk(chunkToParse, results, columnIndex, needsParsing);
 
-        if (lastNewLinePosition != string::npos) {
-            // Newline, save partial line AFTER for next loop
-            remnant = chunkToProcess.substr(lastNewLinePosition + 1);
-            chunkToProcess.resize(lastNewLinePosition);
-        } else {
-            remnant = chunkToProcess;
-            continue;
-        }
-        
-        parseChunk(chunkToProcess, results, columnIndex, needsParsing);
+        remnant.erase(0, lastNewLinePosition + 1);
     };
 
+    // Check if any remaining remnant to parse after looping
     if (!remnant.empty()) {
         remnant += '\n';
         parseChunk(remnant, results, columnIndex, needsParsing);
     }
 
-    cout << buffer.data();
-
-    // cout << buffer.data();
-
-    // while (getline (file, fileDataLine)) {
-    //     results.totalCount++;
-
-    //     if (!needsParsing) {
-    //         continue;
-    //     }
-
-    //     stringstream lineStream(fileDataLine);
-    //     string dataChunk;
-    //     int currentColumn = 0;
-
-
-    //     while (getline(lineStream, dataChunk, ',')) {
-    //         if (currentColumn == columnIndex) {
-    //             try {
-    //                 results.totalSum += stod(dataChunk);
-    //                 results.validDataCount++;
-    //             }
-    //             catch (const invalid_argument& e) {
-    //             }
-    //             catch (out_of_range& e) {
-    //             }
-    //             break;
-    //         }
-    //         currentColumn++;
-    //     }
-    // }
     return results;
 };
 
@@ -212,11 +179,6 @@ int main(int argc, char** argv) {
     }
 
     Results fileResults = processFile(file, columnIndex, operation);
-
-    // Print rest of file
-    double totalSum = 0;
-    long validDataCount = 0;
-    long totalCount = 0;
 
     cout << "Total Count: " << fileResults.totalCount << endl;
     cout << "Valid Count: " << fileResults.validDataCount << endl;
