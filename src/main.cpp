@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <string_view>
 
 #include "profiler.h"
 
@@ -38,35 +39,96 @@ Results processFile(ifstream& file, int columnIndex, const string& operation) {
 
     string fileDataLine;
 
-    while (getline (file, fileDataLine)) {
-        results.totalCount++;
+    const size_t CHUNK_SIZE = 8 * 1024 * 1024; // 8mb
+    vector<char> buffer(CHUNK_SIZE);
+    string remnant = "";
 
-        if (!needsParsing) {
-            continue;
-        }
+    while (file.read(buffer.data(), CHUNK_SIZE) || file.gcount() > 0) {
+        size_t bytesRead = file.gcount();
 
-        stringstream lineStream(fileDataLine);
-        string dataChunk;
-        int currentColumn = 0;
+        string_view dataView(buffer.data(), bytesRead);
 
+        for (char c : dataView) {
+            if (c == '\n') {
+                results.totalCount++;
+            } else if (c == ',') {
 
-        while (getline(lineStream, dataChunk, ',')) {
-            if (currentColumn == columnIndex) {
-                try {
-                    results.totalSum += stod(dataChunk);
-                    results.validDataCount++;
-                }
-                catch (const invalid_argument& e) {
-                }
-                catch (out_of_range& e) {
-                }
-                break;
             }
-            currentColumn++;
         }
-    }
+
+        cout << "A: " << bytesRead << endl;
+    };
+
+    cout << buffer.data();
+
+    // cout << buffer.data();
+
+    // while (getline (file, fileDataLine)) {
+    //     results.totalCount++;
+
+    //     if (!needsParsing) {
+    //         continue;
+    //     }
+
+    //     stringstream lineStream(fileDataLine);
+    //     string dataChunk;
+    //     int currentColumn = 0;
+
+
+    //     while (getline(lineStream, dataChunk, ',')) {
+    //         if (currentColumn == columnIndex) {
+    //             try {
+    //                 results.totalSum += stod(dataChunk);
+    //                 results.validDataCount++;
+    //             }
+    //             catch (const invalid_argument& e) {
+    //             }
+    //             catch (out_of_range& e) {
+    //             }
+    //             break;
+    //         }
+    //         currentColumn++;
+    //     }
+    // }
     return results;
 };
+
+// Original in case of emergency!!
+// Results processFile(ifstream& file, int columnIndex, const string& operation) {
+//     Results results;
+//     bool needsParsing = (operation == "sum" || operation == "average");
+
+//     string fileDataLine;
+
+//     while (getline (file, fileDataLine)) {
+//         results.totalCount++;
+
+//         if (!needsParsing) {
+//             continue;
+//         }
+
+//         stringstream lineStream(fileDataLine);
+//         string dataChunk;
+//         int currentColumn = 0;
+
+
+//         while (getline(lineStream, dataChunk, ',')) {
+//             if (currentColumn == columnIndex) {
+//                 try {
+//                     results.totalSum += stod(dataChunk);
+//                     results.validDataCount++;
+//                 }
+//                 catch (const invalid_argument& e) {
+//                 }
+//                 catch (out_of_range& e) {
+//                 }
+//                 break;
+//             }
+//             currentColumn++;
+//         }
+//     }
+//     return results;
+// };
 
 int main(int argc, char** argv) {
     // Read args
@@ -84,7 +146,7 @@ int main(int argc, char** argv) {
     string operation = argv[3];
 
     // Opening file
-    ifstream file(filename);
+    ifstream file(filename, ios::binary);
 
     // Find index of chosen column header
     string columnHeaders;
