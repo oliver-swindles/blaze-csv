@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <string_view>
+#include <charconv>
 
 #include "profiler.h"
 
@@ -39,23 +40,34 @@ void parseChunk(std::string_view chunk, Results& results, int columnIndex, bool 
         // If new column, & column matches selection, add data
         if (c == ',') {
             if (needsParsing && currentColumn == columnIndex) {
-                try {
-                    results.totalSum += stod(currentField);
-                    results.validDataCount++;
-                } catch (...) {
+                double value;
+                // Parse character in currentField as double, storing result in value
+                auto [ptr, ec] = std::from_chars(currentField.data(), currentField.data() + currentField.size(), value);
 
+                // If there is no error code, then add results
+                if (ec == std::errc()) {
+                    results.totalSum += value;
+                    results.validDataCount++;                    
                 }
+
+                // try {
+                //     results.totalSum += stod(currentField);
+                //     results.validDataCount++;
+                // } catch (...) {
+
+                // }
             }
             currentColumn++;
             currentField.clear();
         } else if (c == '\n') {
             // If end of row & column matches selection, add data (because final column may be missed with just ',' check)
             if (needsParsing && currentColumn == columnIndex) {
-                try {
-                    results.totalSum += stod(currentField);
-                    results.validDataCount++;
-                } catch (...) {
+                double value;
+                auto [ptr, ec] = std::from_chars(currentField.data(), currentField.data() + currentField.size(), value);
 
+                if (ec == std::errc()) {
+                    results.totalSum += value;
+                    results.validDataCount++;                    
                 }
             }
             results.totalCount++;
