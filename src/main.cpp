@@ -11,17 +11,11 @@
 // Split strings by a specified delimiter (i.e. ",")
 std::vector<std::string> split(const std::string& str, char delimiter) {
     std::vector<std::string> tokens;
-    size_t start = 0;
-    size_t end = str.find(delimiter);
-    std::istringstream iss(str);
-    std::string token;
-
-    while (end != std::string::npos) {
-        tokens.push_back(str.substr(start, end - start));
-        start = end + 1;
-        end = str.find(delimiter, start);
+    size_t start = 0, pos;
+    while ((pos = str.find(delimiter, start)) != std::string::npos) {
+        tokens.push_back(str.substr(start, pos - start));
+        start = pos + 1;
     }
-    
     tokens.push_back(str.substr(start));
     return tokens;
 }
