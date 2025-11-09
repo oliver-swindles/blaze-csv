@@ -69,6 +69,10 @@ void parseChunk(string_view chunk, Results& results, int columnIndex, bool needs
     }
 }
 
+void parseChunk_String(const std::string& chunk, Results& results, int columnIndex, bool needsParsing) {
+    parseChunk(chunk, results, columnIndex, needsParsing);
+}
+
 Results processFile(ifstream& file, int columnIndex, string operation) {
     Timer processFileTimer("Processing File");
     Results results;
@@ -84,18 +88,24 @@ Results processFile(ifstream& file, int columnIndex, string operation) {
 
         if (bytesRead == 0) continue;
 
-        remnant.append(buffer.data(), bytesRead);
-        size_t lastNewLinePosition = remnant.find_last_of('\n');
+        string_view dataView(buffer.data(), bytesRead);
 
-        if (lastNewLinePosition == string::npos) {
-            continue;
-        }
+        size_t firstNewLinePosition = dataView.find('\n');
 
-        string_view chunkToParse(remnant.data(), lastNewLinePosition);
+        string bridgeLine = remnant + string(dataView.substr(0, firstNewLinePosition));
 
-        parseChunk(chunkToParse, results, columnIndex, needsParsing);
+        parseChunk_String(bridgeLine, results, columnIndex, needsParsing);
 
-        remnant.erase(0, lastNewLinePosition + 1);
+        size_t lastNewLinePosition = dataView.find_last_of('\n');
+
+        string_view middleChunk(
+            buffer.data() + firstNewLinePosition + 1,
+            lastNewLinePosition - (firstNewLinePosition + 1)
+        );
+
+        parseChunk(middleChunk, results, columnIndex, needsParsing);
+
+        remnant = dataView.substr(lastNewLinePosition + 1);
     };
 
     // Check if any remaining remnant to parse after looping
