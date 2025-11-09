@@ -99,9 +99,12 @@ Results processFile(std::ifstream& file, int columnIndex, std::string operation)
         // Create a reference to the buffer data
         std::string_view dataView(buffer.data(), bytesRead);
 
-
+        // Handle remnant from where buffer splits data
         size_t firstNewLinePosition = dataView.find('\n');
-        std::string bridgeLine = remnant + std::string(dataView.substr(0, firstNewLinePosition));
+        std::string bridgeLine;
+        bridgeLine.reserve(remnant.size() + firstNewLinePosition);
+        bridgeLine.append(remnant);
+        bridgeLine.append(dataView.substr(0, firstNewLinePosition));
         parseChunk_String(bridgeLine, results, columnIndex, needsParsing);
         size_t lastNewLinePosition = dataView.find_last_of('\n');
 
