@@ -83,3 +83,6 @@ Sum: 6.41377e+08
 Average: 28.4838
 
 Entire Program took 33357.1ms to run.
+
+# 09.11.2025
+Refactored various bits for easier reading. Switched to using from_chars() instead of stod(), reducing exception overhead and appears to be much faster now, running average on longitude took ~17-18s. Also swtiched to release build.  Combined this provided a major speed up, parsing and calculating longitude took 5231.05ms.
