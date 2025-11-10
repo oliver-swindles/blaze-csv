@@ -38,10 +38,51 @@ Count: 22517264
 End - Start = 30.1140296 seconds
 
 # 07.11.2025
-Updated the python version to behave a lot closer to how the C++ one does to better gage performance differences, results below:
+Updated the python version to behave a lot closer to how the C++ one does to better gage performance differences, results below for finding column average:
 
 - Both got the same results
 - C++ took: 18.3233 s
 - Python took: 48.6279435 s
 
 I think the largest reason between the big difference between the C++ result today (~18s) and yesterdays (~30s) is because I had more programs running etc yesterday, although on both days when I ran the Python and C++ programs they were both under the same test conditions on each day.
+
+blaze-csv ukraineflights.csv 27.1995 count
+Total Count: 22517263
+Valid Count: 0
+Sum: 0
+Average: nan
+
+Entire Program took 5181.35ms to run.
+
+blaze-csv ukraineflights.csv 27.1995 sum
+Total Count: 22517263
+Valid Count: 22517263
+Sum: 6.41377e+08
+Average: 28.4838
+
+Entire Program took 27063.3ms to run.
+
+blaze-csv ukraineflights.csv 27.1995 average
+Total Count: 22517263
+Valid Count: 22517263
+Sum: 6.41377e+08
+Average: 28.4838
+
+Entire Program took 28154.9ms to run.
+
+After adding chunked parsing execution time still appears to be roughly the same as when using getline(). Likely due to the way I'm handling remnants; Currently copying the entire 8mb chunk every loop and prefixing the remnant.
+
+
+Current solution, with copying chunk and remnant:
+blaze-csv ukraineflights.csv 27.1995 sum
+
+Processing File took 33356.2ms to run.
+Total Count: 22516901
+Valid Count: 22517263
+Sum: 6.41377e+08
+Average: 28.4838
+
+Entire Program took 33357.1ms to run.
+
+# 09.11.2025
+Refactored various bits for easier reading. Switched to using from_chars() instead of stod(), reducing exception overhead and appears to be much faster now, running average on longitude took ~17-18s. Also swtiched to release build.  Combined this provided a major speed up, parsing and calculating longitude took 5231.05ms.
