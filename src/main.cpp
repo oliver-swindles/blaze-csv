@@ -78,7 +78,7 @@ void parseChunk_String(const std::string& chunk, Results& results, int columnInd
     parseChunk(chunk, results, columnIndex, needsParsing);
 }
 
-Results processFile(std::ifstream& file, int columnIndex, std::string operation) {
+Results processFile(std::ifstream& file, const int columnIndex, const std::string operation) {
     Timer processFileTimer("Processing File"); // Start new timer to measure length of file processing
     Results results;
     bool needsParsing = (operation == "sum" || operation == "average");
@@ -95,18 +95,24 @@ Results processFile(std::ifstream& file, int columnIndex, std::string operation)
         // If no data, skip
         if (bytesRead == 0) continue;
 
-        // Create a reference to the buffer data
+        // Create a zero-copy reference of the raw buffer
         std::string_view dataView(buffer.data(), bytesRead);
 
         // Handle remnant from where buffer splits data
+        // Find the first newline. This separates the remnant
+        // + first line from the middle
         size_t firstNewLinePosition = dataView.find('\n');
         std::string bridgeLine;
+        // Reserve to avoid multiple string re-allocations
         bridgeLine.reserve(remnant.size() + firstNewLinePosition);
         bridgeLine.append(remnant);
         bridgeLine.append(dataView.substr(0, firstNewLinePosition));
         parseChunk_String(bridgeLine, results, columnIndex, needsParsing);
+        // Find last newline. Between first and last is "middle chunk",
+        // which is 100% complete lines
         size_t lastNewLinePosition = dataView.find_last_of('\n');
 
+        // Create zero-copy view of the middle chunk
         std::string_view middleChunk(
             buffer.data() + firstNewLinePosition + 1,
             lastNewLinePosition - (firstNewLinePosition + 1)
@@ -125,43 +131,6 @@ Results processFile(std::ifstream& file, int columnIndex, std::string operation)
 
     return results;
 };
-
-// Original in case of emergency!!
-// Results processFile(ifstream& file, int columnIndex, const string& operation) {
-//     Results results;
-//     bool needsParsing = (operation == "sum" || operation == "average");
-
-//     string fileDataLine;
-
-//     while (getline (file, fileDataLine)) {
-//         results.totalCount++;
-
-//         if (!needsParsing) {
-//             continue;
-//         }
-
-//         stringstream lineStream(fileDataLine);
-//         string dataChunk;
-//         int currentColumn = 0;
-
-
-//         while (getline(lineStream, dataChunk, ',')) {
-//             if (currentColumn == columnIndex) {
-//                 try {
-//                     results.totalSum += stod(dataChunk);
-//                     results.validDataCount++;
-//                 }
-//                 catch (const invalid_argument& e) {
-//                 }
-//                 catch (out_of_range& e) {
-//                 }
-//                 break;
-//             }
-//             currentColumn++;
-//         }
-//     }
-//     return results;
-// };
 
 int main(int argc, char** argv) {
     // Read args

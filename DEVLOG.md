@@ -1,3 +1,14 @@
+# BlazeCSV: Developer Log
+
+This log tracks the benchmarks, bugs, and other various decision made during the development of this CSV parser.
+
+**Test File:** `ukraineflights.csv` (~3GB, ~22.5M rows)
+**Main Test Column:** `27.1995` (longitude)
+**Test Operation:** `average`
+**Build Mode:** Released (`-03`)
+
+---
+
 # 05.11.2025
 Ran a basic profiler to time how long it would take to read and print every line of the ukraineflights.csv file. 393144ms.
 
